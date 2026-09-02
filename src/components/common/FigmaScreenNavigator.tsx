@@ -73,8 +73,8 @@ export const FigmaScreenNavigator: React.FC = () => {
 
   return (
     <>
-      {/* Floating Action Trigger in bottom-right */}
-      <div className="fixed bottom-4 left-4 z-50">
+      {/* Floating Action Trigger on left side, higher than before */}
+      <div className="fixed bottom-45 left-4 z-50">
         <button
           type="button"
           onClick={() => setIsOpen(true)}
