@@ -29,7 +29,7 @@ import { TeacherManagePage } from './pages/teacher/TeacherManagePage';
 // Páginas Gerais & Design System
 import { ProfilePage } from './pages/common/ProfilePage';
 import { HelpPage } from './pages/common/HelpPage';
-import { StyleGuidePage } from './pages/StyleGuidePage';
+
 
 export default function App() {
   return (
@@ -66,7 +66,6 @@ export default function App() {
             <Route path="/professor/ajuda" element={<HelpPage />} />
 
             {/* Guia de Estilos */}
-            <Route path="/style-guide" element={<StyleGuidePage />} />
 
             {/* Redirecionamento padrão */}
             <Route path="*" element={<Navigate to="/" replace />} />
