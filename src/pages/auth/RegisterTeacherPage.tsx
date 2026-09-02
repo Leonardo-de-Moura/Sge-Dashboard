@@ -1,0 +1,139 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { User, Mail, Hash, Lock, Info } from 'lucide-react';
+import { AuthLayout } from '../../components/layout/AuthLayout';
+import { Input } from '../../components/common/Input';
+import { Button } from '../../components/common/Button';
+import { useAuth } from '../../context/AuthContext';
+
+export const RegisterTeacherPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [siape, setSiape] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!acceptedTerms) {
+      alert('É necessário concordar com os Termos de Uso.');
+      return;
+    }
+    setSubmitted(true);
+    setTimeout(() => {
+      login('professor', name || 'Professor IFCE', email || 'professor@ifce.edu.br');
+      navigate('/professor/inicio');
+    }, 600);
+  };
+
+  return (
+    <AuthLayout>
+      <div className="text-center mb-5">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+          Crie sua <span className="text-[#006A38]">conta</span>
+        </h2>
+        <p className="text-xs sm:text-sm text-gray-500 mt-1">
+          Preencha os dados abaixo para criar sua conta no SGE-IFCE (Docente/Servidor)
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-3.5">
+        <Input
+          label="Nome completo"
+          type="text"
+          required
+          placeholder="Digite seu nome completo"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          leftIcon={<User className="w-4 h-4" />}
+        />
+
+        <Input
+          label="E-mail institucional"
+          type="email"
+          required
+          placeholder="Digite seu e-mail institucional (@ifce.edu.br)"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          leftIcon={<Mail className="w-4 h-4" />}
+        />
+
+        <Input
+          label="Matrícula SIAPE"
+          type="text"
+          required
+          placeholder="Digite seu número SIAPE"
+          value={siape}
+          onChange={(e) => setSiape(e.target.value)}
+          leftIcon={<Hash className="w-4 h-4" />}
+        />
+
+        <Input
+          label="Senha"
+          type="password"
+          required
+          placeholder="Crie uma senha segura"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          leftIcon={<Lock className="w-4 h-4" />}
+        />
+
+        <Input
+          label="Confirmar senha"
+          type="password"
+          required
+          placeholder="Confirme sua senha"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          leftIcon={<Lock className="w-4 h-4" />}
+        />
+
+        <div className="pt-1">
+          <label className="flex items-start gap-2 text-xs text-gray-600 cursor-pointer">
+            <input
+              type="checkbox"
+              required
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              className="mt-0.5 rounded border-gray-300 text-[#006A38] focus:ring-[#006A38]"
+            />
+            <span>
+              Li e concordo com os <a href="" className="text-[#006A38] underline font-medium">Termos de Uso</a> e <a href="" className="text-[#006A38] underline font-medium">Política de Privacidade</a>.
+            </span>
+          </label>
+        </div>
+
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          fullWidth
+          disabled={submitted}
+          className="mt-2"
+        >
+          {submitted ? 'Criando conta...' : 'Cadastrar'}
+        </Button>
+      </form>
+
+      <div className="mt-5 text-center text-xs text-gray-600">
+        Já tem uma conta?{' '}
+        <Link to="/login/professor" className="text-[#006A38] font-bold hover:underline">
+          Fazer login
+        </Link>
+      </div>
+
+      <div className="mt-6 p-3.5 rounded-2xl bg-emerald-50/60 border border-[#C9EEB4] text-left flex gap-2.5">
+        <Info className="w-4 h-4 text-[#006A38] flex-shrink-0 mt-0.5" />
+        <div className="text-[11px] text-gray-700 leading-relaxed">
+          <strong className="text-[#006A38] block mb-0.5">Confirmação de E-mail:</strong>
+          Após o cadastro, enviaremos um e-mail de confirmação para o endereço indicado. Clique no link para ativar seu acesso de docente.
+        </div>
+      </div>
+    </AuthLayout>
+  );
+};

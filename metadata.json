@@ -1,0 +1,6 @@
+{
+  "name": "SGE-IFCE - Gestão de Eventos",
+  "description": "Sistema de Gestão de Eventos do Instituto Federal do Ceará (IFCE) para alunos e professores.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
