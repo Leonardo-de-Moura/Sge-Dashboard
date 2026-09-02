@@ -3,13 +3,24 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Compass, X, ChevronRight, Layers, Palette, GraduationCap, BookOpen, ExternalLink } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
+type ScreenItem = {
+  label: string;
+  path: string;
+  role?: string;
+};
+
+type ScreenGroup = {
+  group: string;
+  items: ScreenItem[];
+};
+
 export const FigmaScreenNavigator: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { setRole } = useAuth();
 
-  const screens = [
+  const screens: ScreenGroup[] = [
     {
       group: '1. Autenticação & Entrada',
       items: [
@@ -45,7 +56,7 @@ export const FigmaScreenNavigator: React.FC = () => {
     {
       group: '4. Design System & Apoio',
       items: [
-        { label: 'Style Guide (Paleta de Cores e Tipografia)', path: '/style-guide' },
+       
         { label: 'Perfil Institucional', path: '/aluno/perfil' },
         { label: 'Ajuda & FAQs', path: '/aluno/ajuda' },
       ],
