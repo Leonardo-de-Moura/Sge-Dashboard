@@ -113,7 +113,7 @@ export const TeacherDashboardPage: React.FC = () => {
             </div>
             <button
               type="button"
-              onClick={() => navigate('/professor/eventos')}
+              onClick={() => navigate('/professor/gerenciar')}
               className="text-xs font-bold text-[#006A38] hover:underline inline-flex items-center gap-1 cursor-pointer"
             >
               <span>Ver todos</span>

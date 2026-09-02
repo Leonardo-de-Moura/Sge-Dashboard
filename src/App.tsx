@@ -60,6 +60,7 @@ export default function App() {
             <Route path="/professor/criar-evento" element={<CreateEventPage />} />
             <Route path="/professor/presencas" element={<AttendancePage />} />
             <Route path="/professor/certificados" element={<CertificatesPage />} />
+            <Route path="/professor/eventos" element={<TeacherManagePage />} />
             <Route path="/professor/gerenciar" element={<TeacherManagePage />} />
             <Route path="/professor/perfil" element={<ProfilePage />} />
             <Route path="/professor/ajuda" element={<HelpPage />} />
