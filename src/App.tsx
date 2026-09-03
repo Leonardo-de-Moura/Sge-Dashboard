@@ -14,6 +14,7 @@ import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { EmailSentPage } from './pages/auth/EmailSentPage';
 
 // Páginas do Aluno
+
 import { StudentDashboardPage } from './pages/student/StudentDashboardPage';
 import { StudentEventsPage } from './pages/student/StudentEventsPage';
 import { StudentRegistrationsPage } from './pages/student/StudentRegistrationsPage';
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="/email-enviado" element={<EmailSentPage />} />
 
             {/* Módulo Aluno */}
+          
             <Route path="/aluno/inicio" element={<StudentDashboardPage />} />
             <Route path="/aluno/eventos" element={<StudentEventsPage />} />
             <Route path="/aluno/inscricoes" element={<StudentRegistrationsPage />} />
