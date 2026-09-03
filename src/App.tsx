@@ -72,7 +72,7 @@ export default function App() {
           </Routes>
 
           {/* Botão flutuante para navegar diretamente entre todas as telas do Figma */}
-          <FigmaScreenNavigator />
+          
         </div>
       </BrowserRouter>
     </AuthProvider>

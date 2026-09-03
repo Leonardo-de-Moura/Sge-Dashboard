@@ -2,7 +2,7 @@
 
 ## Run Locally
 
-**Prerequisites:**  Node.js
+**Prerequisites:**  Node.js lts npm
 
 
 1. Install dependencies:
