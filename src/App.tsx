@@ -50,6 +50,7 @@ export default function App() {
 
             {/* Módulo Aluno */}
           
+          
             <Route path="/aluno/inicio" element={<StudentDashboardPage />} />
             <Route path="/aluno/eventos" element={<StudentEventsPage />} />
             <Route path="/aluno/inscricoes" element={<StudentRegistrationsPage />} />
