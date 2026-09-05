@@ -74,7 +74,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
 
-          {/* Botão flutuante para navegar diretamente entre todas as telas do Figma */}
+        
           
         </div>
       </BrowserRouter>

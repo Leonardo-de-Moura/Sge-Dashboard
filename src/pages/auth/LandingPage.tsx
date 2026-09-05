@@ -1,8 +1,15 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { LogIn, UserPlus, Calendar, Award, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { Logo } from '../../components/common/Logo';
-import { Button } from '../../components/common/Button';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  LogIn,
+  UserPlus,
+  Calendar,
+  Award,
+  ShieldCheck,
+  CheckCircle2,
+} from "lucide-react";
+import { Logo } from "../../components/common/Logo";
+import { Button } from "../../components/common/Button";
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -20,7 +27,8 @@ export const LandingPage: React.FC = () => {
           Bem-vindo!
         </h2>
         <p className="text-xs sm:text-sm text-gray-600 mb-8 leading-relaxed">
-          Organize, participe e acompanhe os eventos do IFCE de forma simples e prática.
+          Organize, participe e acompanhe os eventos do IFCE de forma simples e
+          prática.
         </p>
 
         {/* Action buttons */}
@@ -30,7 +38,7 @@ export const LandingPage: React.FC = () => {
             size="lg"
             fullWidth
             leftIcon={<LogIn className="w-4 h-4 text-[#006A38]" />}
-            onClick={() => navigate('/definir-funcao?action=login')}
+            onClick={() => navigate("/definir-funcao?action=login")}
           >
             Entrar
           </Button>
@@ -39,7 +47,7 @@ export const LandingPage: React.FC = () => {
             size="lg"
             fullWidth
             leftIcon={<UserPlus className="w-4 h-4 text-white" />}
-            onClick={() => navigate('/definir-funcao?action=cadastro')}
+            onClick={() => navigate("/definir-funcao?action=cadastro")}
           >
             Cadastrar
           </Button>
@@ -51,22 +59,22 @@ export const LandingPage: React.FC = () => {
             Gerencie seu eventos com facilidade
           </p>
           <div className="grid grid-cols-2 gap-3 text-left">
-            <a href="" className="p-2.5 rounded-xl bg-gray-50 hover:bg-emerald-50/50 transition-colors flex items-center gap-2 text-gray-700">
+            <div className="p-2.5 rounded-xl bg-gray-50 hover:bg-emerald-50/50 transition-colors flex items-center gap-2 text-gray-700">
               <Calendar className="w-4 h-4 text-[#006A38] flex-shrink-0" />
               <span className="text-xs font-medium">Eventos organizados</span>
-            </a>
-            <a href="" className="p-2.5 rounded-xl bg-gray-50 hover:bg-emerald-50/50 transition-colors flex items-center gap-2 text-gray-700">
+            </div>
+            <div className="p-2.5 rounded-xl bg-gray-50 hover:bg-emerald-50/50 transition-colors flex items-center gap-2 text-gray-700">
               <CheckCircle2 className="w-4 h-4 text-[#006A38] flex-shrink-0" />
               <span className="text-xs font-medium">Inscrições simples</span>
-            </a>
-            <a href="" className="p-2.5 rounded-xl bg-gray-50 hover:bg-emerald-50/50 transition-colors flex items-center gap-2 text-gray-700">
+            </div>
+            <div className="p-2.5 rounded-xl bg-gray-50 hover:bg-emerald-50/50 transition-colors flex items-center gap-2 text-gray-700">
               <Award className="w-4 h-4 text-[#006A38] flex-shrink-0" />
               <span className="text-xs font-medium">Certificados digitais</span>
-            </a>
-            <a href="" className="p-2.5 rounded-xl bg-gray-50 hover:bg-emerald-50/50 transition-colors flex items-center gap-2 text-gray-700">
+            </div>
+            <div className="p-2.5 rounded-xl bg-gray-50 hover:bg-emerald-50/50 transition-colors flex items-center gap-2 text-gray-700">
               <ShieldCheck className="w-4 h-4 text-[#006A38] flex-shrink-0" />
               <span className="text-xs font-medium">Segurança IFCE</span>
-            </a>
+            </div>
           </div>
         </div>
       </div>
