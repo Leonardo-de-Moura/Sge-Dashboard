@@ -45,26 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       <div className="flex items-center gap-3 sm:gap-4">
         {/* Role switcher chip (convenient for prototyping and previewing both roles) */}
-        <div className="hidden md:flex items-center bg-gray-100 p-1 rounded-xl text-xs font-semibold">
-          <button
-            type="button"
-            onClick={() => setRole('aluno')}
-            className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-              role === 'aluno' ? 'bg-white text-[#006A38] shadow-xs' : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            Visão Aluno
-          </button>
-          <button
-            type="button"
-            onClick={() => setRole('professor')}
-            className={`px-3 py-1 rounded-lg transition-all cursor-pointer ${
-              role === 'professor' ? 'bg-white text-[#006A38] shadow-xs' : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            Visão Professor
-          </button>
-        </div>
+        
 
         {/* Notifications */}
         <div className="relative">
