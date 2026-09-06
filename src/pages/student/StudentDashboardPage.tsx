@@ -5,6 +5,7 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { EventCard } from '../../components/cards/EventCard';
 import { mockEvents, mockRegistrations, mockCertificates } from '../../data/mockData';
 import { EventItem } from '../../types';
+import { CalendarDays } from 'lucide-react';
 
 export const StudentDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -58,15 +59,15 @@ export const StudentDashboardPage: React.FC = () => {
             </div>
 
             {/* Banner decorative asset with href="" as requested */}
-            <a href="" className="w-28 h-28 sm:w-36 sm:h-36 flex-shrink-0 flex items-center justify-center p-3 rounded-2xl bg-white/70 shadow-xs border border-white" title="Ilustração IFCE">
+            <div className="w-24 h-24 sm:w-36 sm:h-36 flex-shrink-0 flex items-center justify-center p-3 rounded-2xl bg-white/70 shadow-xs border border-white" title="Ilustração IFCE">
               {/* Plant / Growth stylized illustration */}
               <div className="flex flex-col items-center justify-center text-[#006A38]">
-                <div className="w-12 h-12 rounded-full bg-[#006A38] text-white flex items-center justify-center font-bold text-xl mb-1 shadow-sm">
-                  IF
-                </div>
-                <span className="text-[10px] font-bold text-gray-600 uppercase tracking-wider">Eventos 2026</span>
+
+                <CalendarDays className="w-10 h-10 sm:w-18 sm:h-18" />
+                
+               
               </div>
-            </a>
+            </div>
           </div>
 
           {/* Search bar and Filters */}
