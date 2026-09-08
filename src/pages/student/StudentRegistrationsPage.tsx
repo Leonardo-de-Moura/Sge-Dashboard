@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, MapPin, Download, ExternalLink } from 'lucide-react';
+import { Calendar, MapPin, Download, ExternalLink, XCircle } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { TicketModal } from '../../components/cards/TicketModal.tsx';
 import { mockRegistrations, mockEvents } from '../../data/mockData';
@@ -9,6 +9,8 @@ import { buildTicketData } from '../../utils/ticket';
 export const StudentRegistrationsPage: React.FC = () => {
   const navigate = useNavigate();
   const [openTicketId, setOpenTicketId] = useState<string | null>(null);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
+  const [cancelledIds, setCancelledIds] = useState<string[]>([]);
 
   const openRegistration = mockRegistrations.find((r) => r.id === openTicketId) ?? null;
   const openEvent = openRegistration
@@ -16,15 +18,23 @@ export const StudentRegistrationsPage: React.FC = () => {
     : undefined;
   const openTicket = openRegistration ? buildTicketData(openRegistration, openEvent) : null;
 
+  const handleConfirmCancel = (id: string) => {
+    // TODO: chamar API de cancelamento de inscrição aqui
+    setCancelledIds((prev) => [...prev, id]);
+    setCancelingId(null);
+  };
+
   return (
     <DashboardLayout
       title="Minhas Inscrições"
       subtitle="Acompanhe seus eventos confirmados e acesse seus comprovantes de inscrição"
     >
-      <div className="space-y-4 max-w-4xl text-left">
+      <div className="space-y-4 max-w-6xl text-left">
         <div className="grid grid-cols-1 gap-4">
           {mockRegistrations.map((reg) => {
             const event = mockEvents.find((e) => e.id === reg.eventId);
+            const isCancelled = cancelledIds.includes(reg.id);
+            const isConfirming = cancelingId === reg.id;
 
             return (
               <div
@@ -33,8 +43,14 @@ export const StudentRegistrationsPage: React.FC = () => {
               >
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#C9EEB4] text-[#004D26] uppercase">
-                      Inscrição {reg.status}
+                    <span
+                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase ${
+                        isCancelled
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-[#C9EEB4] text-[#004D26]'
+                      }`}
+                    >
+                      Inscrição {isCancelled ? 'cancelada' : reg.status}
                     </span>
                     <span className="text-xs text-gray-500">
                       Código:{' '}
@@ -61,23 +77,58 @@ export const StudentRegistrationsPage: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-                  <button
-                    type="button"
-                    onClick={() => setOpenTicketId(reg.id)}
-                    className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-semibold text-gray-700 flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Ticket do Evento</span>
-                  </button>
+                  {isConfirming ? (
+                    <>
+                      <span className="text-xs font-semibold text-gray-600 mr-1">
+                        Confirmar cancelamento?
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setCancelingId(null)}
+                        className="px-3 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-semibold text-gray-700 transition-colors cursor-pointer"
+                      >
+                        Voltar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleConfirmCancel(reg.id)}
+                        className="px-3 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-xs font-semibold text-white transition-colors cursor-pointer"
+                      >
+                        Sim, cancelar
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        disabled={isCancelled}
+                        onClick={() => setCancelingId(reg.id)}
+                        className="px-4 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-xs font-semibold text-red-600 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-red-50"
+                      >
+                        <XCircle className="w-3.5 h-3.5" />
+                        <span>Cancelar Inscrição</span>
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/aluno/ticket/${reg.id}`)}
-                    className="px-4 py-2 rounded-xl bg-[#006A38] hover:bg-[#004D26] text-xs font-semibold text-white flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <span>Ver Detalhes</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </button>
+                      <button
+                        type="button"
+                        disabled={isCancelled}
+                        onClick={() => setOpenTicketId(reg.id)}
+                        className="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-semibold text-gray-700 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-gray-100"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Ticket do Evento</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/aluno/ticket/${reg.id}`)}
+                        className="px-4 py-2 rounded-xl bg-[#006A38] hover:bg-[#004D26] text-xs font-semibold text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <span>Ver Detalhes</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             );
