@@ -35,7 +35,7 @@ import { HelpPage } from './pages/common/HelpPage';
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter basename="/Sge-Dashboard">
+      <BrowserRouter >
         <div className="min-h-screen bg-[#F8F9FA] text-[#1A1A1A] font-sans antialiased">
           <Routes>
             {/* Fluxo de Entrada e Autenticação */}
