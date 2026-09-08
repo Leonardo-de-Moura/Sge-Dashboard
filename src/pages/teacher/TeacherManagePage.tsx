@@ -57,7 +57,7 @@ export const TeacherManagePage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 w-full md:w-auto justify-end pt-3 md:pt-0 border-t md:border-t-0 border-gray-100 flex-wrap">
+              <div className="flex items-center gap-2 w-full md:w-auto justify-end pt-4 md:pt-0 border-t md:border-t-0 border-gray-100 flex-wrap">
                 <button
                   type="button"
                   onClick={() => navigate('/professor/presencas')}

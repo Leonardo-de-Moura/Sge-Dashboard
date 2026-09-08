@@ -4,7 +4,7 @@ export const mockEvents: EventItem[] = [
   {
     id: '1',
     title: 'Inteligência Artificial e o Futuro da Educação',
-    description: 'Aprenda sobre o impacto dos grandes modelos de linguagem e ferramentas de IA generativa no ambiente acadêmico e no mercado de trabalho tecnológico.',
+    description: 'Aprenda sobre o impacto dos grandes modelos de linguagem e ferramentas de IA generativa no ambiente acadêmico e no mercado de trabalho.',
     category: 'Palestra',
     modality: 'Presencial',
     startDate: '21/05/2026',

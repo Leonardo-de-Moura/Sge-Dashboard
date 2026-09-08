@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Home,
   Calendar,
@@ -11,46 +11,49 @@ import {
   CheckSquare,
   LogOut,
   X,
-} from 'lucide-react';
-import { Logo } from './Logo';
-import { IfceBadge } from './IfceBadge';
-import { useAuth } from '../../context/AuthContext';
+} from "lucide-react";
+import { Logo } from "./Logo";
+import { IfceBadge } from "./IfceBadge";
+import { useAuth } from "../../context/AuthContext";
 
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  isOpen = false,
+  onClose,
+}) => {
   const { role, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
     if (onClose) onClose();
   };
 
   const studentNavItems = [
-    { label: 'Início', path: '/aluno/inicio', icon: Home },
-    { label: 'Eventos', path: '/aluno/eventos', icon: Calendar },
-    { label: 'Inscrições', path: '/aluno/inscricoes', icon: ClipboardList },
-    { label: 'Certificados', path: '/aluno/certificados', icon: Award },
-    { label: 'Perfil', path: '/aluno/perfil', icon: User },
-    { label: 'Ajuda', path: '/aluno/ajuda', icon: HelpCircle },
+    { label: "Início", path: "/aluno/inicio", icon: Home },
+    { label: "Eventos", path: "/aluno/eventos", icon: Calendar },
+    { label: "Inscrições", path: "/aluno/inscricoes", icon: ClipboardList },
+    { label: "Certificados", path: "/aluno/certificados", icon: Award },
+    { label: "Perfil", path: "/aluno/perfil", icon: User },
+    { label: "Ajuda", path: "/aluno/ajuda", icon: HelpCircle },
   ];
 
   const teacherNavItems = [
-    { label: 'Início', path: '/professor/inicio', icon: Home },
-    { label: 'Eventos', path: '/professor/eventos', icon: Calendar },
-    { label: 'Gerenciar', path: '/professor/gerenciar', icon: FolderKanban },
-    { label: 'Presenças', path: '/professor/presencas', icon: CheckSquare },
-    { label: 'Certificados', path: '/professor/certificados', icon: Award },
-    { label: 'Perfil', path: '/professor/perfil', icon: User },
-    { label: 'Ajuda', path: '/professor/ajuda', icon: HelpCircle },
+    { label: "Início", path: "/professor/inicio", icon: Home },
+
+    { label: "Gerenciar", path: "/professor/gerenciar", icon: FolderKanban },
+    { label: "Presenças", path: "/professor/presencas", icon: CheckSquare },
+    { label: "Certificados", path: "/professor/certificados", icon: Award },
+    { label: "Perfil", path: "/professor/perfil", icon: User },
+    { label: "Ajuda", path: "/professor/ajuda", icon: HelpCircle },
   ];
 
-  const navItems = role === 'professor' ? teacherNavItems : studentNavItems;
+  const navItems = role === "professor" ? teacherNavItems : studentNavItems;
 
   const sidebarContent = (
     <div className="flex flex-col h-full justify-between p-4 sm:p-5">
@@ -82,8 +85,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-[#C9EEB4] text-[#004D26] font-semibold shadow-xs'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                      ? "bg-[#C9EEB4] text-[#004D26] font-semibold shadow-xs"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   }`
                 }
               >
@@ -129,7 +132,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => 
       {/* Mobile Sliding Sidebar */}
       <div
         className={`fixed top-0 bottom-0 left-0 w-72 bg-white z-50 lg:hidden shadow-2xl transition-transform duration-200 ease-in-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+          isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {sidebarContent}

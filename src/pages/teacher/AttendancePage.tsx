@@ -1,36 +1,53 @@
-import React, { useState } from 'react';
-import { Search, Check, X, RefreshCw, CheckCircle2, ChevronDown, Users, UserCheck, UserX } from 'lucide-react';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { mockParticipants, mockEvents } from '../../data/mockData';
-import { ParticipantAttendance } from '../../types';
-import { Button } from '../../components/common/Button';
+import React, { useState } from "react";
+import {
+  Search,
+  Check,
+  X,
+  RefreshCw,
+  CheckCircle2,
+  ChevronDown,
+  Users,
+  UserCheck,
+  UserX,
+} from "lucide-react";
+import { DashboardLayout } from "../../components/layout/DashboardLayout";
+import { mockParticipants, mockEvents } from "../../data/mockData";
+import { ParticipantAttendance } from "../../types";
+import { Button } from "../../components/common/Button";
 
 export const AttendancePage: React.FC = () => {
-  const [selectedEventId, setSelectedEventId] = useState('3'); // Expotec 2026
-  const [participants, setParticipants] = useState<ParticipantAttendance[]>(mockParticipants);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEventId, setSelectedEventId] = useState("3"); // Expotec 2026
+  const [participants, setParticipants] =
+    useState<ParticipantAttendance[]>(mockParticipants);
+  const [searchTerm, setSearchTerm] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const selectedEvent = mockEvents.find((e) => e.id === selectedEventId) || mockEvents[2];
+  const selectedEvent =
+    mockEvents.find((e) => e.id === selectedEventId) || mockEvents[2];
 
-  const filteredParticipants = participants.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.matricula.includes(searchTerm)
+  const filteredParticipants = participants.filter(
+    (p) =>
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.matricula.includes(searchTerm),
   );
 
-  const presentCount = participants.filter((p) => p.status === 'presente').length;
-  const absentCount = participants.filter((p) => p.status === 'ausente').length;
+  const presentCount = participants.filter(
+    (p) => p.status === "presente",
+  ).length;
+  const absentCount = participants.filter((p) => p.status === "ausente").length;
   const totalCount = participants.length;
 
-  const toggleStatus = (id: string, newStatus: 'presente' | 'ausente') => {
+  const toggleStatus = (id: string, newStatus: "presente" | "ausente") => {
     setParticipants(
-      participants.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
+      participants.map((p) => (p.id === id ? { ...p, status: newStatus } : p)),
     );
   };
 
   const handleSaveAttendance = () => {
-    setToastMessage(`Presenças registradas para o evento "${selectedEvent.title}"!`);
+    setToastMessage(
+      `Presenças registradas para o evento "${selectedEvent.title}"!`,
+    );
     setTimeout(() => setToastMessage(null), 3500);
   };
 
@@ -54,7 +71,9 @@ export const AttendancePage: React.FC = () => {
               Evento Selecionado
             </span>
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-bold text-gray-900">{selectedEvent.title}</h3>
+              <h3 className="text-lg font-bold text-gray-900">
+                {selectedEvent.title}
+              </h3>
               <select
                 value={selectedEventId}
                 onChange={(e) => setSelectedEventId(e.target.value)}
@@ -75,16 +94,28 @@ export const AttendancePage: React.FC = () => {
           {/* Quick Counter Badges matching Figma */}
           <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto">
             <div className="flex-1 md:flex-initial px-3.5 py-2 rounded-xl bg-gray-50 border border-gray-100 text-center">
-              <span className="text-[10px] uppercase font-bold text-gray-400 block">Inscritos</span>
-              <span className="text-sm font-bold text-gray-800">{totalCount}</span>
+              <span className="text-[10px] uppercase font-bold text-gray-400 block">
+                Inscritos
+              </span>
+              <span className="text-sm font-bold text-gray-800">
+                {totalCount}
+              </span>
             </div>
             <div className="flex-1 md:flex-initial px-3.5 py-2 rounded-xl bg-emerald-50 border border-[#C9EEB4] text-center">
-              <span className="text-[10px] uppercase font-bold text-[#006A38] block">Presentes</span>
-              <span className="text-sm font-bold text-[#006A38]">{presentCount}</span>
+              <span className="text-[10px] uppercase font-bold text-[#006A38] block">
+                Presentes
+              </span>
+              <span className="text-sm font-bold text-[#006A38]">
+                {presentCount}
+              </span>
             </div>
             <div className="flex-1 md:flex-initial px-3.5 py-2 rounded-xl bg-red-50 border border-[#EFC8C3] text-center">
-              <span className="text-[10px] uppercase font-bold text-[#A62B26] block">Ausentes</span>
-              <span className="text-sm font-bold text-[#A62B26]">{absentCount}</span>
+              <span className="text-[10px] uppercase font-bold text-[#A62B26] block">
+                Ausentes
+              </span>
+              <span className="text-sm font-bold text-[#A62B26]">
+                {absentCount}
+              </span>
             </div>
           </div>
         </div>
@@ -119,7 +150,7 @@ export const AttendancePage: React.FC = () => {
           {/* List items */}
           <div className="divide-y divide-gray-100">
             {filteredParticipants.map((p) => {
-              const isPresent = p.status === 'presente';
+              const isPresent = p.status === "presente";
 
               return (
                 <div
@@ -128,7 +159,11 @@ export const AttendancePage: React.FC = () => {
                 >
                   <div className="flex items-center gap-3">
                     {/* Participant avatar with href="" as requested */}
-                    <a href="" className="w-10 h-10 rounded-full bg-emerald-100/70 text-[#006A38] font-bold text-xs flex items-center justify-center flex-shrink-0" title="Foto do aluno">
+                    <a
+                      href=""
+                      className="w-10 h-10 rounded-full bg-emerald-100/70 text-[#006A38] font-bold text-xs flex items-center justify-center flex-shrink-0"
+                      title="Foto do aluno"
+                    >
                       {p.name.charAt(0)}
                     </a>
                     <div>
@@ -136,7 +171,11 @@ export const AttendancePage: React.FC = () => {
                         {p.name}
                       </h4>
                       <p className="text-[11px] text-gray-500">
-                        Matrícula: <span className="font-mono font-medium">{p.matricula}</span> • {p.email}
+                        Matrícula:{" "}
+                        <span className="font-mono font-medium">
+                          {p.matricula}
+                        </span>{" "}
+                        • {p.email}
                       </p>
                     </div>
                   </div>
@@ -145,11 +184,11 @@ export const AttendancePage: React.FC = () => {
                   <div className="flex items-center gap-2 self-end sm:self-auto">
                     <button
                       type="button"
-                      onClick={() => toggleStatus(p.id, 'presente')}
+                      onClick={() => toggleStatus(p.id, "presente")}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer ${
                         isPresent
-                          ? 'bg-[#006A38] text-white shadow-2xs'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? "bg-[#006A38] text-white shadow-2xs"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
                       <UserCheck className="w-3.5 h-3.5" />
@@ -158,11 +197,11 @@ export const AttendancePage: React.FC = () => {
 
                     <button
                       type="button"
-                      onClick={() => toggleStatus(p.id, 'ausente')}
+                      onClick={() => toggleStatus(p.id, "ausente")}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 transition-all cursor-pointer ${
                         !isPresent
-                          ? 'bg-[#A62B26] text-white shadow-2xs'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? "bg-[#A62B26] text-white shadow-2xs"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
                     >
                       <UserX className="w-3.5 h-3.5" />
