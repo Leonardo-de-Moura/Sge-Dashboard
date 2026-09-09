@@ -1,11 +1,12 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
+import type { InputHTMLAttributes, ReactNode } from 'react';
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
   helperText?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(({
@@ -24,7 +25,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
     <div className="w-full flex flex-col gap-1.5 text-left">
       {label && (
         <label htmlFor={inputId} className="text-xs sm:text-sm font-semibold text-gray-700">
-          {label} {props.required && <span className="text-[#A62B26]">*</span>}
+          {label} {props.required && <span className="text-secondary">*</span>}
         </label>
       )}
       <div className="relative flex items-center">
@@ -37,7 +38,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
           ref={ref}
           id={inputId}
           className={`w-full rounded-xl border ${
-            error ? 'border-[#A62B26] focus:border-[#A62B26] focus:ring-[#A62B26]/20' : 'border-[#DCDCDC] focus:border-[#006A38] focus:ring-[#006A38]/20'
+            error ? 'border-secondary focus:border-secondary focus:ring-secondary/20' : 'border-[#DCDCDC] focus:border-primary focus:ring-primary/20'
           } bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 transition-colors focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:cursor-not-allowed ${
             leftIcon ? 'pl-10' : ''
           } ${rightIcon ? 'pr-10' : ''} ${className}`}
@@ -50,7 +51,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
         )}
       </div>
       {error ? (
-        <span className="text-xs text-[#A62B26] font-medium">{error}</span>
+        <span className="text-xs text-secondary font-medium">{error}</span>
       ) : helperText ? (
         <span className="text-xs text-gray-500">{helperText}</span>
       ) : null}

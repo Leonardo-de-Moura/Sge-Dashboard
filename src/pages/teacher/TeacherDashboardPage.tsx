@@ -1,4 +1,4 @@
-import React from 'react';
+import type * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, CheckSquare, Award, Calendar, Users, ArrowRight, TrendingUp } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';

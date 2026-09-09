@@ -1,4 +1,4 @@
-import React from 'react';
+import type * as React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { GraduationCap, BookOpen, ArrowLeft } from 'lucide-react';
 import { Logo } from '../../components/common/Logo';

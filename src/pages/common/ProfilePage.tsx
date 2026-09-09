@@ -1,4 +1,4 @@
-import React from 'react';
+import type * as React from 'react';
 import { User, Mail, Hash, Shield, Building } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';

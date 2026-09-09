@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type * as React from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Mail, Hash, Lock, Info } from 'lucide-react';
 import { AuthLayout } from '../../components/layout/AuthLayout';

@@ -1,4 +1,4 @@
-import React from 'react';
+import type * as React from 'react';
 import { ShieldCheck } from 'lucide-react';
 import { Logo } from '../common/Logo';
 

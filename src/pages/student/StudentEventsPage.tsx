@@ -1,37 +1,97 @@
-import React, { useState } from 'react';
-import { Search, SlidersHorizontal, MapPin, Calendar, Clock, CheckCircle2, ChevronRight, X, User } from 'lucide-react';
-import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { mockEvents } from '../../data/mockData';
-import { EventItem } from '../../types';
-import { Button } from '../../components/common/Button';
+import type * as React from "react";
+import { useState, useEffect } from "react";
+import {
+  Search,
+  SlidersHorizontal,
+  MapPin,
+  Calendar,
+  Clock,
+  CheckCircle2,
+  ChevronRight,
+  X,
+  User,
+} from "lucide-react";
+import { DashboardLayout } from "../../components/layout/DashboardLayout";
+
+import { EventItem } from "../../types";
+import { Button } from "../../components/common/Button";
+import { eventsService } from "../../services/eventsService";
+import { registrationsService } from "../../services/registrationsService";
+import { useAuth } from "../../context/AuthContext";
 
 export const StudentEventsPage: React.FC = () => {
-  const [selectedEvent, setSelectedEvent] = useState<EventItem>(mockEvents[2]); // Default Semana da Inovação
-  const [searchTerm, setSearchTerm] = useState('');
-  const [registeredEvents, setRegisteredEvents] = useState<string[]>(['1']);
+  console.log("🔵 Buscando eventos na API...");
+  const { user } = useAuth();
+  const [eventsList, setEventsList] = useState<EventItem[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [registeredEvents, setRegisteredEvents] = useState<string[]>([]);
   const [showConfirmationToast, setShowConfirmationToast] = useState(false);
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
+  
+useEffect(() => {
+  console.log("🔥 useEffect do StudentEventsPage executou");
 
-  const filteredEvents = mockEvents.filter((ev) =>
-    ev.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ev.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ev.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const fetchEvents = async () => {
+    console.log("🔵 Chamando eventsService.getEvents()");
+
+    try {
+      const res = await eventsService.getEvents();
+
+      console.log("🟢 Resposta da API:", res);
+
+      if (res.success && Array.isArray(res.data)) {
+        setEventsList(res.data);
+
+        if (res.data.length > 0) {
+          setSelectedEvent(res.data[0]);
+        }
+      }
+    } catch (err) {
+      console.error("❌ Erro ao buscar eventos:", err);
+    }
+  };
+
+  fetchEvents();
+}, []);
+
+const filteredEvents = eventsList.filter((event) => {
+  const search = searchTerm.toLowerCase();
+
+  return (
+    event.title.toLowerCase().includes(search) ||
+    event.description.toLowerCase().includes(search) ||
+    event.category.toLowerCase().includes(search)
   );
-
+});
   const handleSelectEvent = (event: EventItem) => {
     setSelectedEvent(event);
     setMobileDetailOpen(true);
   };
 
-  const handleConfirmRegistration = () => {
+  const handleConfirmRegistration = async () => {
     if (selectedEvent && !registeredEvents.includes(selectedEvent.id)) {
+      try {
+        if (user) {
+          await registrationsService.createRegistration({
+            eventId: selectedEvent.id,
+            userId: user.id,
+            participantName: user.name,
+            participantEmail: user.email,
+            matricula: user.matricula,
+          });
+        }
+      } catch (err) {
+        console.warn("API registration fallback:", err);
+      }
       setRegisteredEvents([...registeredEvents, selectedEvent.id]);
       setShowConfirmationToast(true);
       setTimeout(() => setShowConfirmationToast(false), 3500);
     }
   };
 
-  const isSelectedRegistered = selectedEvent && registeredEvents.includes(selectedEvent.id);
+  const isSelectedRegistered =
+    selectedEvent && registeredEvents.includes(selectedEvent.id);
 
   return (
     <DashboardLayout
@@ -76,14 +136,16 @@ export const StudentEventsPage: React.FC = () => {
               const isSelected = selectedEvent?.id === event.id;
               const isEnrolled = registeredEvents.includes(event.id);
 
+
+        
               return (
                 <div
                   key={event.id}
                   onClick={() => handleSelectEvent(event)}
                   className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer text-left ${
                     isSelected
-                      ? 'border-[#006A38] bg-emerald-50/30 ring-1 ring-[#006A38] shadow-xs'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
+                      ? "border-[#006A38] bg-emerald-50/30 ring-1 ring-[#006A38] shadow-xs"
+                      : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -141,8 +203,8 @@ export const StudentEventsPage: React.FC = () => {
           <div
             className={`lg:col-span-5 bg-white rounded-3xl border border-gray-200 p-6 shadow-sm space-y-6 ${
               mobileDetailOpen
-                ? 'fixed inset-x-4 bottom-4 top-20 z-50 overflow-y-auto lg:static lg:inset-auto lg:top-auto lg:overflow-visible'
-                : 'hidden lg:block'
+                ? "fixed inset-x-4 bottom-4 top-20 z-50 overflow-y-auto lg:static lg:inset-auto lg:top-auto lg:overflow-visible"
+                : "hidden lg:block"
             }`}
           >
             {/* Close button on mobile */}
@@ -160,7 +222,11 @@ export const StudentEventsPage: React.FC = () => {
             </div>
 
             {/* Event Cover with href="" as requested */}
-            <a href="" className="block w-full h-40 rounded-2xl bg-gradient-to-tr from-[#006A38] to-[#0D4D26] text-white p-5 relative overflow-hidden flex flex-col justify-end group" title="Imagem do evento">
+            <a
+              href=""
+              className="block w-full h-40 rounded-2xl bg-gradient-to-tr from-[#006A38] to-[#0D4D26] text-white p-5 relative overflow-hidden flex flex-col justify-end group"
+              title="Imagem do evento"
+            >
               <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-lg">
                 {selectedEvent.modality}
               </div>
@@ -175,14 +241,19 @@ export const StudentEventsPage: React.FC = () => {
             {/* Metadata tags */}
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100">
-                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Data</span>
+                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">
+                  Data
+                </span>
                 <span className="font-semibold text-gray-800 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5 text-[#006A38]" />
-                  {selectedEvent.startDate} {selectedEvent.endDate ? `a ${selectedEvent.endDate}` : ''}
+                  {selectedEvent.startDate}{" "}
+                  {selectedEvent.endDate ? `a ${selectedEvent.endDate}` : ""}
                 </span>
               </div>
               <div className="p-3 rounded-2xl bg-gray-50 border border-gray-100">
-                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Carga Horária</span>
+                <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">
+                  Carga Horária
+                </span>
                 <span className="font-semibold text-gray-800 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-[#006A38]" />
                   {selectedEvent.workload}
@@ -208,9 +279,14 @@ export const StudentEventsPage: React.FC = () => {
 
               <div className="space-y-2.5">
                 {selectedEvent.activities?.map((act) => (
-                  <div key={act.id} className="p-3 rounded-xl bg-gray-50 border border-gray-100 space-y-1">
+                  <div
+                    key={act.id}
+                    className="p-3 rounded-xl bg-gray-50 border border-gray-100 space-y-1"
+                  >
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-gray-900">{act.title}</span>
+                      <span className="font-bold text-gray-900">
+                        {act.title}
+                      </span>
                       <span className="text-[10px] text-gray-500 font-semibold bg-white px-2 py-0.5 rounded-md border border-gray-200">
                         {act.time}
                       </span>

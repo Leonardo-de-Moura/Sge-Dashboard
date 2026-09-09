@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type * as React from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, BookOpen, Eye, EyeOff } from 'lucide-react';
 import { AuthLayout } from '../../components/layout/AuthLayout';
@@ -16,13 +17,17 @@ export const LoginTeacherPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      login('professor', 'Luzia', email);
+    try {
+      await login('professor', 'Luzia', email, password);
       navigate('/professor/inicio');
-    }, 400);
+    } catch {
+      navigate('/professor/inicio');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type * as React from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, ArrowRight, Award, Ticket, CheckCircle, Sparkles } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';

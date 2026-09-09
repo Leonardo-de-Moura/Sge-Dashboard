@@ -1,4 +1,4 @@
-import React from 'react';
+import type * as React from 'react';
 import { CalendarDays, Clock, MapPin, CheckCircle2, Barcode } from 'lucide-react';
 
 export interface TicketData {

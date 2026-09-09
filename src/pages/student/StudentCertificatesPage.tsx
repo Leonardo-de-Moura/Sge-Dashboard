@@ -1,4 +1,4 @@
-import React from 'react';
+import type * as React from 'react';
 import { Award, Download, CheckCircle2, ShieldCheck, Calendar, Clock } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { mockCertificates } from '../../data/mockData';

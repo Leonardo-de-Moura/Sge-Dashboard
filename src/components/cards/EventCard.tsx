@@ -1,4 +1,4 @@
-import React from 'react';
+import type * as React from 'react';
 import { MapPin, Users, Clock, Check } from 'lucide-react';
 import { EventItem } from '../../types';
 

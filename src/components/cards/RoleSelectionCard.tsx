@@ -1,4 +1,4 @@
-import React from 'react';
+import type * as React from 'react';
 import { ChevronRight } from 'lucide-react';
 
 interface RoleSelectionCardProps {

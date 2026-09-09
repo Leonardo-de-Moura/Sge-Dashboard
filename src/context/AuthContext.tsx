@@ -1,13 +1,18 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import type * as React from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { User, UserRole } from '../types';
+import { authService, LoginPayload } from '../services/authService';
+import { apiClient } from '../services/apiClient';
 
 interface AuthContextType {
   user: User | null;
   role: UserRole | null;
+  backendConnected: boolean;
   setRole: (role: UserRole) => void;
-  login: (role: UserRole, customName?: string, customEmail?: string) => void;
+  login: (role: UserRole, customName?: string, customEmail?: string, password?: string) => Promise<void>;
   logout: () => void;
   notificationsCount: number;
+  checkBackendConnection: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return null;
       }
     }
-    // Default mock user matching the Figma "Olá, Luzia!"
+    // Default user matching the institutional Figma model
     return {
       id: 'u-1',
       name: 'Luzia',
@@ -37,13 +42,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   });
 
+  const [backendConnected, setBackendConnected] = useState<boolean>(false);
   const [notificationsCount] = useState<number>(3);
+
+  const checkBackendConnection = async (): Promise<boolean> => {
+    try {
+      // Test basic connection to backend
+      const res = await apiClient.get<unknown>('/events');
+      if (res && (res.success || Array.isArray(res.data))) {
+        setBackendConnected(true);
+        return true;
+      }
+      setBackendConnected(true);
+      return true;
+    } catch {
+      setBackendConnected(false);
+      return false;
+    }
+  };
 
   useEffect(() => {
     if (role) {
       localStorage.setItem('sge_role', role);
     }
   }, [role]);
+
+  useEffect(() => {
+    checkBackendConnection();
+  }, []);
 
   const setRole = (newRole: UserRole) => {
     setRoleState(newRole);
@@ -60,12 +86,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = (newRole: UserRole, customName = 'Luzia', customEmail?: string) => {
+  const login = async (newRole: UserRole, customName = 'Luzia', customEmail?: string, password?: string) => {
     setRoleState(newRole);
+    const emailToUse = customEmail || (newRole === 'professor' ? 'luzia.docente@ifce.edu.br' : 'luzia@aluno.ifce.edu.br');
+
+    // Attempt direct login with backend API if password is provided
+    if (password && customEmail) {
+      try {
+        const payload: LoginPayload = {
+          email: emailToUse,
+          password,
+          role: newRole
+        };
+        const response = await authService.login(payload);
+        if (response.success && response.data?.user) {
+          const apiUser: User = {
+            id: response.data.user.id,
+            name: response.data.user.name,
+            email: response.data.user.email,
+            role: response.data.user.role,
+            matricula: response.data.user.matricula,
+            siape: response.data.user.siape,
+            avatarUrl: response.data.user.avatarUrl
+          };
+          setUser(apiUser);
+          setBackendConnected(true);
+          return;
+        }
+      } catch (err) {
+        console.warn('API backend login fallback triggered:', err);
+      }
+    }
+
+    // Local fallback if API is not yet seeded or offline
     const newUser: User = {
       id: 'u-1',
       name: customName,
-      email: customEmail || (newRole === 'professor' ? `${customName.toLowerCase()}.docente@ifce.edu.br` : `${customName.toLowerCase()}@aluno.ifce.edu.br`),
+      email: emailToUse,
       role: newRole,
       matricula: newRole === 'aluno' ? '2023108922' : undefined,
       siape: newRole === 'professor' ? '1849201' : undefined
@@ -76,12 +133,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    authService.logout();
     setUser(null);
-    localStorage.removeItem('sge_user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, setRole, login, logout, notificationsCount }}>
+    <AuthContext.Provider value={{
+      user,
+      role,
+      backendConnected,
+      setRole,
+      login,
+      logout,
+      notificationsCount,
+      checkBackendConnection
+    }}>
       {children}
     </AuthContext.Provider>
   );
@@ -94,3 +160,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

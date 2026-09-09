@@ -1,5 +1,6 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import type * as React from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Bell,
   ChevronDown,
@@ -21,7 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   title,
   subtitle,
 }) => {
-  const { user, role, setRole, logout } = useAuth();
+  const { user, role, setRole, logout, backendConnected, checkBackendConnection } = useAuth();
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotificationToast, setShowNotificationToast] = useState(false);
@@ -90,6 +91,20 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4">
+        {/* Backend API Connection Status Pill */}
+        <button
+          type="button"
+          onClick={() => checkBackendConnection()}
+          title={backendConnected ? "Backend .NET conectado em localhost:5000" : "Clique para testar conexão com backend .NET (porta 5000)"}
+          className={`hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+            backendConnected
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+              : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
+          }`}
+        >
+          <span className={`w-2 h-2 rounded-full ${backendConnected ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'}`} />
+          <span>{backendConnected ? 'API Conectada' : 'Modo Local'}</span>
+        </button>
 
         {/* Notifications */}
         <div ref={notificationRef} className="relative">

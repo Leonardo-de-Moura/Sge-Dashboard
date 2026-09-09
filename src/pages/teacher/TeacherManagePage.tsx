@@ -1,4 +1,4 @@
-import React from 'react';
+import type * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FolderKanban, Plus, Edit, Users, CheckSquare, Award } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';

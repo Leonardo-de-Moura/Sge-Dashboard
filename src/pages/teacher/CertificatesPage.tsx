@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type * as React from 'react';
+import { useState } from 'react';
 import { Search, Award, CheckCircle, Clock, FileCheck, CheckCircle2, ChevronRight } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { mockParticipants, mockEvents } from '../../data/mockData';
