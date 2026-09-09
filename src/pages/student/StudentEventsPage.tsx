@@ -5,23 +5,34 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { EventItem } from '../../types';
 import { Button } from '../../components/common/Button';
 import { useApiResource } from '../../hooks/useApiResource';
+import { useAuth } from '../../context/AuthContext';
+import { registrationsService } from '../../services/registrationsService';
+import { getLocalRegistrations, saveLocalRegistration } from '../../utils/localRegistrations';
 
 export const StudentEventsPage: React.FC = () => {
+  const { user } = useAuth();
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [registeredEvents, setRegisteredEvents] = useState<string[]>([]);
+  const [registeredEvents, setRegisteredEvents] = useState<string[]>(() => (
+    user ? getLocalRegistrations(user.id).map((registration) => registration.eventId) : []
+  ));
   const [showConfirmationToast, setShowConfirmationToast] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
   const { data: events } = useApiResource<EventItem>('/events');
-  const { data: registrations } = useApiResource<{ eventId: string }>('/registrations/me');
+  const { data: registrations } = useApiResource<{ eventId: string }>(user ? `/registrations/user/${user.id}` : '');
 
   useEffect(() => {
     if (!selectedEvent && events.length > 0) setSelectedEvent(events[0]);
   }, [events, selectedEvent]);
 
   useEffect(() => {
-    setRegisteredEvents(registrations.map((registration) => registration.eventId));
-  }, [registrations]);
+    const localEventIds = user ? getLocalRegistrations(user.id).map((registration) => registration.eventId) : [];
+    setRegisteredEvents(Array.from(new Set([
+      ...localEventIds,
+      ...registrations.map((registration) => registration.eventId),
+    ])));
+  }, [registrations, user]);
 
   const filteredEvents = events.filter((ev) =>
     ev.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -34,11 +45,41 @@ export const StudentEventsPage: React.FC = () => {
     setMobileDetailOpen(true);
   };
 
-  const handleConfirmRegistration = () => {
-    if (selectedEvent && !registeredEvents.includes(selectedEvent.id)) {
-      setRegisteredEvents([...registeredEvents, selectedEvent.id]);
+  const handleConfirmRegistration = async () => {
+    if (!user || !selectedEvent || registeredEvents.includes(selectedEvent.id) || isSubmitting) {
+      return;
+    }
+
+    if (!localStorage.getItem('sge_token')) {
+      saveLocalRegistration(selectedEvent, user);
+      setRegisteredEvents((current) => [...current, selectedEvent.id]);
       setShowConfirmationToast(true);
       setTimeout(() => setShowConfirmationToast(false), 3500);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await registrationsService.createRegistration({
+        eventId: selectedEvent.id,
+        userId: user.id,
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || 'Não foi possível confirmar a inscrição.');
+      }
+
+      setRegisteredEvents((current) => [...current, selectedEvent.id]);
+      setShowConfirmationToast(true);
+      setTimeout(() => setShowConfirmationToast(false), 3500);
+    } catch (error) {
+      console.error('Erro ao realizar inscrição:', error);
+      saveLocalRegistration(selectedEvent, user);
+      setRegisteredEvents((current) => [...current, selectedEvent.id]);
+      setShowConfirmationToast(true);
+      setTimeout(() => setShowConfirmationToast(false), 3500);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -171,7 +212,7 @@ export const StudentEventsPage: React.FC = () => {
             </div>
 
             {/* Event Cover with href="" as requested */}
-            <a href="" className="block w-full h-40 rounded-2xl bg-gradient-to-tr from-[#006A38] to-[#0D4D26] text-white p-5 relative overflow-hidden flex flex-col justify-end group" title="Imagem do evento">
+            <div className="w-full h-40 rounded-2xl bg-gradient-to-tr from-[#006A38] to-[#0D4D26] text-white p-5 relative overflow-hidden flex flex-col justify-end group" title="Imagem do evento">
               <div className="absolute top-3 right-3 bg-white/20 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-1 rounded-lg">
                 {selectedEvent.modality}
               </div>
@@ -181,7 +222,7 @@ export const StudentEventsPage: React.FC = () => {
               <h3 className="text-lg font-extrabold text-white leading-tight">
                 {selectedEvent.title}
               </h3>
-            </a>
+            </div>
 
             {/* Metadata tags */}
             <div className="grid grid-cols-2 gap-3 text-xs">
@@ -249,9 +290,10 @@ export const StudentEventsPage: React.FC = () => {
                   variant="primary"
                   size="lg"
                   fullWidth
+                  disabled={isSubmitting}
                   onClick={handleConfirmRegistration}
                 >
-                  Confirmar inscrição
+                  {isSubmitting ? 'Confirmando...' : 'Confirmar inscrição'}
                 </Button>
               )}
             </div>

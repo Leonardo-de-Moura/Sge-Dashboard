@@ -5,6 +5,7 @@ import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { EventItem, ParticipantAttendance } from '../../types';
 import { Button } from '../../components/common/Button';
 import { useApiResource } from '../../hooks/useApiResource';
+import { certificatesService } from '../../services/certificatesService';
 
 export const CertificatesPage: React.FC = () => {
   const [selectedEventId, setSelectedEventId] = useState('');
@@ -15,7 +16,7 @@ export const CertificatesPage: React.FC = () => {
 
   const { data: events } = useApiResource<EventItem>('/events?mine=true');
   const { data: apiParticipants } = useApiResource<ParticipantAttendance>(
-    selectedEventId ? `/events/${selectedEventId}/participants` : '/events/participants',
+    selectedEventId ? `/attendance/event/${selectedEventId}` : '',
   );
   const selectedEvent = events.find((e) => e.id === selectedEventId) ?? events[0];
 
@@ -41,18 +42,31 @@ export const CertificatesPage: React.FC = () => {
   const issuedCount = participants.filter((p) => p.certificateIssued).length;
   const pendingCount = participants.filter((p) => p.status === 'presente' && !p.certificateIssued).length;
 
-  const handleEmitSingle = (id: string) => {
-    setParticipants(
-      participants.map((p) => (p.id === id ? { ...p, certificateIssued: true } : p))
-    );
-    setToastMessage('Certificado emitido e enviado por e-mail!');
-    setTimeout(() => setToastMessage(null), 3000);
+  const handleEmitSingle = async (id: string) => {
+    if (!selectedEventId) return;
+
+    try {
+      const response = await certificatesService.generateCertificate({
+        eventId: selectedEventId,
+        attendanceId: id,
+      });
+      if (!response.success) throw new Error(response.message || 'Não foi possível emitir o certificado.');
+
+      setParticipants((current) => current.map((participant) => (
+        participant.id === id ? { ...participant, certificateIssued: true } : participant
+      )));
+      setToastMessage('Certificado emitido e enviado por e-mail!');
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch (error) {
+      console.error('Erro ao emitir certificado:', error);
+      setToastMessage('Não foi possível emitir o certificado.');
+      setTimeout(() => setToastMessage(null), 3000);
+    }
   };
 
-  const handleEmitAll = () => {
-    setParticipants(
-      participants.map((p) => (p.status === 'presente' ? { ...p, certificateIssued: true } : p))
-    );
+  const handleEmitAll = async () => {
+    const pendingParticipants = participants.filter((participant) => participant.status === 'presente' && !participant.certificateIssued);
+    await Promise.all(pendingParticipants.map((participant) => handleEmitSingle(participant.id)));
     setToastMessage('Todos os certificados para alunos presentes foram gerados!');
     setTimeout(() => setToastMessage(null), 3500);
   };
@@ -152,9 +166,9 @@ export const CertificatesPage: React.FC = () => {
                     className="p-4 sm:px-6 hover:bg-gray-50/70 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left"
                   >
                     <div className="flex items-center gap-3">
-                      <a href="" className="w-9 h-9 rounded-full bg-emerald-100 text-[#006A38] font-bold text-xs flex items-center justify-center flex-shrink-0" title="Foto do aluno">
+                      <div className="w-9 h-9 rounded-full bg-emerald-100 text-[#006A38] font-bold text-xs flex items-center justify-center flex-shrink-0" title="Foto do aluno">
                         {p.name.charAt(0)}
-                      </a>
+                      </div>
                       <div>
                         <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">
                           {p.name}

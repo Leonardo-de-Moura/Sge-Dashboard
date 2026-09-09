@@ -19,10 +19,9 @@ export const RoleSelectionCard: React.FC<RoleSelectionCardProps> = ({
 }) => {
   return (
     <div className="flex flex-col items-center text-center p-6 sm:p-8 bg-white rounded-2xl border border-gray-200 hover:border-[#006A38] hover:shadow-lg transition-all duration-200 group">
-      {/* Icon circle / container with href="" placeholder */}
-      <a href="" className="w-20 h-20 rounded-full bg-[#C9EEB4]/30 text-[#006A38] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+      <div className="w-20 h-20 rounded-full bg-[#C9EEB4]/30 text-[#006A38] flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
         {icon}
-      </a>
+      </div>
 
       <h3 className="text-xl font-bold text-gray-900 mb-2.5">{title}</h3>
       <p className="text-xs sm:text-sm text-gray-600 mb-6 leading-relaxed flex-1 min-h-[48px]">

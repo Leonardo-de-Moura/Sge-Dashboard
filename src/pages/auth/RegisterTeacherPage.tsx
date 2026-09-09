@@ -104,7 +104,7 @@ export const RegisterTeacherPage: React.FC = () => {
               className="mt-0.5 rounded border-gray-300 text-[#006A38] focus:ring-[#006A38]"
             />
             <span>
-              Li e concordo com os <a href="" className="text-[#006A38] underline font-medium">Termos de Uso</a> e <a href="" className="text-[#006A38] underline font-medium">Política de Privacidade</a>.
+              Li e concordo com os <span className="text-[#006A38] underline font-medium">Termos de Uso</span> e <span className="text-[#006A38] underline font-medium">Política de Privacidade</span>.
             </span>
           </label>
         </div>

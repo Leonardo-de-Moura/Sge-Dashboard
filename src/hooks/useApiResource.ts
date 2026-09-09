@@ -15,6 +15,11 @@ export function useApiResource<T>(path: string): ApiResourceState<T> {
   });
 
   useEffect(() => {
+    if (!path) {
+      setState({ data: [], loading: false, error: null });
+      return;
+    }
+
     let active = true;
 
     apiGet<T[] | { data?: T[]; items?: T[] }>(path)

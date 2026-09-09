@@ -8,20 +8,35 @@ import { EventItem } from '../../types';
 import { CalendarDays } from 'lucide-react';
 import { useApiResource } from '../../hooks/useApiResource';
 import { Registration, CertificateItem } from '../../types';
+import { useAuth } from '../../context/AuthContext';
+import { registrationsService } from '../../services/registrationsService';
+import { getLocalRegistrations, saveLocalRegistration } from '../../utils/localRegistrations';
 
 export const StudentDashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
-  const [userRegistrations, setUserRegistrations] = useState<string[]>([]);
+  const [userRegistrations, setUserRegistrations] = useState<string[]>(() => (
+    user ? getLocalRegistrations(user.id).map((registration) => registration.eventId) : []
+  ));
+  const [visibleRegistrations, setVisibleRegistrations] = useState<Registration[]>(() => (
+    user ? getLocalRegistrations(user.id) : []
+  ));
+  const [registeringEventId, setRegisteringEventId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const { data: events, loading, error } = useApiResource<EventItem>('/events');
-  const { data: registrations } = useApiResource<Registration>('/registrations/me');
-  const { data: certificates } = useApiResource<CertificateItem>('/certificates/me');
+  const { data: registrations } = useApiResource<Registration>(user ? `/registrations/user/${user.id}` : '');
+  const { data: certificates } = useApiResource<CertificateItem>(user ? `/certificates/user/${user.id}` : '');
 
   useEffect(() => {
-    setUserRegistrations(registrations.map((registration) => registration.eventId));
-  }, [registrations]);
+    const localRegistrations = user ? getLocalRegistrations(user.id) : [];
+    const allRegistrations = [...localRegistrations, ...registrations].filter(
+      (registration, index, current) => current.findIndex((item) => item.eventId === registration.eventId) === index,
+    );
+    setUserRegistrations(allRegistrations.map((registration) => registration.eventId));
+    setVisibleRegistrations(allRegistrations);
+  }, [registrations, user]);
 
   const categories = ['Todos', 'Palestra', 'Minicurso', 'Congresso', 'Oficina'];
 
@@ -42,11 +57,45 @@ export const StudentDashboardPage: React.FC = () => {
     );
   }
 
-  const handleRegister = (event: EventItem) => {
-    if (userRegistrations.includes(event.id)) return;
-    setUserRegistrations([...userRegistrations, event.id]);
-    setToastMessage(`Inscrição confirmada em "${event.title}"!`);
-    setTimeout(() => setToastMessage(null), 3500);
+  const handleRegister = async (event: EventItem) => {
+    if (!user || userRegistrations.includes(event.id) || registeringEventId === event.id) return;
+
+    if (!localStorage.getItem('sge_token')) {
+      const localRegistration = saveLocalRegistration(event, user);
+      setUserRegistrations((current) => [...current, event.id]);
+      setVisibleRegistrations((current) => [...current, localRegistration]);
+      setToastMessage(`Inscrição confirmada localmente em "${event.title}".`);
+      setTimeout(() => setToastMessage(null), 3500);
+      return;
+    }
+
+    setRegisteringEventId(event.id);
+    try {
+      const response = await registrationsService.createRegistration({
+        eventId: event.id,
+        userId: user.id,
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || 'Não foi possível confirmar a inscrição.');
+      }
+
+      setUserRegistrations((current) => [...current, event.id]);
+      if (response.data) {
+        setVisibleRegistrations((current) => [...current, response.data]);
+      }
+      setToastMessage(`Inscrição confirmada em "${event.title}"!`);
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (error) {
+      console.error('Erro ao realizar inscrição:', error);
+      const localRegistration = saveLocalRegistration(event, user);
+      setUserRegistrations((current) => [...current, event.id]);
+      setVisibleRegistrations((current) => [...current, localRegistration]);
+      setToastMessage('API indisponível. Inscrição salva localmente.');
+      setTimeout(() => setToastMessage(null), 3500);
+    } finally {
+      setRegisteringEventId(null);
+    }
   };
 
   return (
@@ -77,7 +126,6 @@ export const StudentDashboardPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Banner decorative asset with href="" as requested */}
             <div className="w-24 h-24 sm:w-36 sm:h-36 flex-shrink-0 flex items-center justify-center p-3 rounded-2xl bg-white/70 shadow-xs border border-white" title="Ilustração IFCE">
               {/* Plant / Growth stylized illustration */}
               <div className="flex flex-col items-center justify-center text-[#006A38]">
@@ -176,12 +224,12 @@ export const StudentDashboardPage: React.FC = () => {
                 <h4 className="text-sm font-bold text-gray-900">Minhas inscrições</h4>
               </div>
               <span className="text-[11px] font-semibold text-gray-500">
-                {registrations.length} ativas
+                {visibleRegistrations.length} ativas
               </span>
             </div>
 
             <div className="space-y-3">
-              {registrations.map((reg) => (
+              {visibleRegistrations.map((reg) => (
                 <div
                   key={reg.id}
                   className="p-3.5 rounded-2xl bg-gray-50 hover:bg-emerald-50/40 border border-gray-100 transition-colors"
@@ -194,10 +242,10 @@ export const StudentDashboardPage: React.FC = () => {
                   </h5>
                   <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200/60 text-[11px] text-gray-500">
                     <span>{reg.date}</span>
-                    <a href="" className="text-[#006A38] font-bold hover:underline inline-flex items-center gap-1">
+                    <button type="button" onClick={() => navigate('/aluno/inscricoes')} className="text-[#006A38] font-bold hover:underline inline-flex items-center gap-1">
                       <span>Ver ticket</span>
                       <ArrowRight className="w-3 h-3" />
-                    </a>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -235,9 +283,9 @@ export const StudentDashboardPage: React.FC = () => {
                     <p className="text-xs font-bold text-gray-800 truncate">{cert.eventTitle}</p>
                     <p className="text-[10px] text-gray-500">{cert.workload} • Emitido em {cert.issueDate}</p>
                   </div>
-                  <a href="" className="flex-shrink-0 px-2.5 py-1 rounded-lg bg-[#006A38] text-white text-[11px] font-semibold hover:bg-[#004D26] transition-colors">
+                  <button type="button" onClick={() => navigate('/aluno/certificados')} className="flex-shrink-0 px-2.5 py-1 rounded-lg bg-[#006A38] text-white text-[11px] font-semibold hover:bg-[#004D26] transition-colors">
                     Emitir
-                  </a>
+                  </button>
                 </div>
               ))}
             </div>

@@ -5,6 +5,7 @@ import { Upload, Calendar, Clock, MapPin, CheckCircle, ArrowLeft } from 'lucide-
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
+import { eventsService } from '../../services/eventsService';
 
 export const CreateEventPage: React.FC = () => {
   const navigate = useNavigate();
@@ -19,13 +20,38 @@ export const CreateEventPage: React.FC = () => {
   const [location, setLocation] = useState('Auditório Principal - Campus Cedro');
   const [totalSlots, setTotalSlots] = useState('50');
   const [savedToast, setSavedToast] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSavedToast(true);
-    setTimeout(() => {
-      navigate('/professor/inicio');
-    }, 1500);
+    setSaving(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await eventsService.createEvent({
+        title,
+        description,
+        category,
+        modality,
+        startDate,
+        endDate: endDate || undefined,
+        workload,
+        location,
+        totalSlots: Number(totalSlots),
+      });
+
+      if (!response.success) {
+        throw new Error(response.message || 'Não foi possível cadastrar o evento.');
+      }
+
+      setSavedToast(true);
+      setTimeout(() => navigate('/professor/inicio'), 1500);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Não foi possível cadastrar o evento.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -37,6 +63,11 @@ export const CreateEventPage: React.FC = () => {
         <div className="fixed bottom-6 right-6 z-50 bg-[#006A38] text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 text-sm font-semibold">
           <CheckCircle className="w-5 h-5 text-[#C9EEB4]" />
           <span>Evento cadastrado com sucesso!</span>
+        </div>
+      )}
+      {errorMessage && (
+        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {errorMessage}
         </div>
       )}
 
@@ -168,7 +199,6 @@ export const CreateEventPage: React.FC = () => {
 
         {/* Right Side: Image Upload + Resumo + Action Buttons (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Image upload box with href="" as requested */}
           <div className="bg-white rounded-3xl border border-gray-200 p-6 shadow-xs space-y-3 text-left">
             <h4 className="text-sm font-bold text-gray-900">
               Imagem de divulgação
@@ -177,7 +207,7 @@ export const CreateEventPage: React.FC = () => {
               Faça upload do banner visual em formato PNG ou JPG.
             </p>
 
-            <a href="" className="border-2 border-dashed border-gray-300 hover:border-[#006A38] rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-colors group block">
+            <button type="button" className="w-full border-2 border-dashed border-gray-300 hover:border-[#006A38] rounded-2xl p-6 flex flex-col items-center justify-center text-center transition-colors group cursor-pointer">
               <div className="w-12 h-12 rounded-full bg-emerald-50 text-[#006A38] flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
                 <Upload className="w-5 h-5" />
               </div>
@@ -187,7 +217,7 @@ export const CreateEventPage: React.FC = () => {
               <span className="text-[11px] text-gray-400 mt-1">
                 PNG, JPG até 5MB
               </span>
-            </a>
+            </button>
           </div>
 
           {/* Real-time Summary Card */}
@@ -246,8 +276,9 @@ export const CreateEventPage: React.FC = () => {
                 variant="primary"
                 size="md"
                 fullWidth
+                disabled={saving}
               >
-                Salvar evento
+                {saving ? 'Salvando...' : 'Salvar evento'}
               </Button>
             </div>
           </div>

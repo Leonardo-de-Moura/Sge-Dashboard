@@ -3,9 +3,11 @@ import { Award, Download, CheckCircle2, ShieldCheck, Calendar, Clock } from 'luc
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { CertificateItem } from '../../types';
 import { useApiResource } from '../../hooks/useApiResource';
+import { useAuth } from '../../context/AuthContext';
 
 export const StudentCertificatesPage: React.FC = () => {
-  const { data: certificates } = useApiResource<CertificateItem>('/certificates/me');
+  const { user } = useAuth();
+  const { data: certificates } = useApiResource<CertificateItem>(user ? `/certificates/user/${user.id}` : '');
 
   return (
     <DashboardLayout
@@ -57,13 +59,14 @@ export const StudentCertificatesPage: React.FC = () => {
 
               <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
                 <span className="text-[11px] text-gray-500">PDF Autenticado</span>
-                <a
-                  href=""
+                <button
+                  type="button"
+                  onClick={() => window.print()}
                   className="px-3.5 py-1.5 rounded-xl bg-[#006A38] hover:bg-[#004D26] text-white text-xs font-semibold inline-flex items-center gap-1.5 transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Baixar Certificado</span>
-                </a>
+                </button>
               </div>
             </div>
           ))}

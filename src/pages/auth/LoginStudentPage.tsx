@@ -33,9 +33,9 @@ export const LoginStudentPage: React.FC = () => {
   return (
     <AuthLayout>
       <div className="text-center mb-6">
-        <a href="" className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#C9EEB4]/40 text-[#006A38] mb-3">
+        <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#C9EEB4]/40 text-[#006A38] mb-3">
           <GraduationCap className="w-6 h-6" />
-        </a>
+        </div>
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
           Faça seu <span className="text-[#006A38]">login</span>
         </h2>

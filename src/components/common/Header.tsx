@@ -10,6 +10,7 @@ import {
   Check,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   onToggleMobileMenu?: () => void;
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   subtitle,
 }) => {
   const { user, role, setRole, logout, backendConnected, checkBackendConnection } = useAuth();
+  const navigate = useNavigate();
 
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotificationToast, setShowNotificationToast] = useState(false);
@@ -246,13 +248,17 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
 
               <div className="py-1">
-                <a
-                  href=""
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigate(role === 'professor' ? '/professor/perfil' : '/aluno/perfil');
+                    setShowDropdown(false);
+                  }}
                   className="flex items-center gap-2 px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   <UserCircle className="w-4 h-4 text-gray-400" />
                   Meu Perfil
-                </a>
+                </button>
 
                 <button
                   type="button"

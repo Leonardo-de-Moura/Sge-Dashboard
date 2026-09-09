@@ -8,10 +8,7 @@ import { Registration } from '../types';
 
 export interface CreateRegistrationPayload {
   eventId: string;
-  userId?: string;
-  participantName?: string;
-  participantEmail?: string;
-  matricula?: string;
+  userId: string;
 }
 
 export const registrationsService = {

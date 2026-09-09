@@ -37,9 +37,6 @@ private async request<T>(
     endpoint.startsWith('/') ? endpoint : `/${endpoint}`
   }`;
 
-  console.log("🚨 API CLIENT - URL:", url);
-  console.log("🚨 API CLIENT - OPTIONS:", options);
-
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -47,21 +44,13 @@ private async request<T>(
     ...(options.headers as Record<string, string> || {}),
   };
 
-  console.log("🚨 API CLIENT - ANTES DO FETCH");
-
   try {
     const response = await fetch(url, {
       ...options,
       headers,
     });
 
-    console.log("🚨 API CLIENT - FETCH TERMINOU");
-    console.log("🚨 API CLIENT - STATUS:", response.status);
-    console.log("🚨 API CLIENT - OK:", response.ok);
-
     const data = await response.json().catch(() => null);
-
-    console.log("🚨 API CLIENT - DATA:", data);
 
     if (!response.ok) {
       const errorMessage =

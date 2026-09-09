@@ -14,9 +14,9 @@ export const ProfilePage: React.FC = () => {
     >
       <div className="max-w-2xl bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 shadow-xs text-left space-y-6">
         <div className="flex items-center gap-4 pb-6 border-b border-gray-100">
-          <a href="" className="w-16 h-16 rounded-full bg-[#006A38] text-white font-bold text-xl flex items-center justify-center flex-shrink-0" title="Foto do perfil">
+          <div className="w-16 h-16 rounded-full bg-[#006A38] text-white font-bold text-xl flex items-center justify-center flex-shrink-0" title="Foto do perfil">
             {user?.name.charAt(0) || 'L'}
-          </a>
+          </div>
           <div>
             <h3 className="text-xl font-bold text-gray-900">{user?.name || 'Luzia'}</h3>
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#C9EEB4] text-[#004D26] uppercase">

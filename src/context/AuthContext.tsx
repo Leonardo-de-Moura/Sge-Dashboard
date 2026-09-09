@@ -119,6 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Local fallback if API is not yet seeded or offline
+    localStorage.removeItem('sge_token');
     const newUser: User = {
       id: 'u-1',
       name: customName,

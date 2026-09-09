@@ -15,6 +15,7 @@ import { DashboardLayout } from "../../components/layout/DashboardLayout";
 import { EventItem, ParticipantAttendance } from "../../types";
 import { Button } from "../../components/common/Button";
 import { useApiResource } from "../../hooks/useApiResource";
+import { attendanceService } from "../../services/attendanceService";
 
 export const AttendancePage: React.FC = () => {
   const [selectedEventId, setSelectedEventId] = useState("");
@@ -24,7 +25,7 @@ export const AttendancePage: React.FC = () => {
 
   const { data: events } = useApiResource<EventItem>('/events?mine=true');
   const { data: apiParticipants } = useApiResource<ParticipantAttendance>(
-    selectedEventId ? `/events/${selectedEventId}/participants` : '/events/participants',
+    selectedEventId ? `/attendance/event/${selectedEventId}` : '',
   );
   const selectedEvent = events.find((e) => e.id === selectedEventId) ?? events[0];
 
@@ -55,11 +56,31 @@ export const AttendancePage: React.FC = () => {
     );
   };
 
-  const handleSaveAttendance = () => {
-    setToastMessage(
-      `Presenças registradas para o evento "${selectedEvent?.title ?? ''}"!`,
-    );
-    setTimeout(() => setToastMessage(null), 3500);
+  const handleSaveAttendance = async () => {
+    if (!selectedEventId) return;
+
+    try {
+      const updates = await Promise.all(
+        (['presente', 'ausente'] as const)
+          .map((status) => ({
+            status,
+            attendanceIds: participants.filter((participant) => participant.status === status).map((participant) => participant.id),
+          }))
+          .filter(({ attendanceIds }) => attendanceIds.length > 0)
+          .map(({ status, attendanceIds }) => attendanceService.bulkUpdate({ attendanceIds, status })),
+      );
+
+      if (updates.some((response) => !response.success)) {
+        throw new Error('A API não confirmou todas as presenças.');
+      }
+
+      setToastMessage(`Presenças registradas para o evento "${selectedEvent?.title ?? ''}"!`);
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (error) {
+      console.error('Erro ao salvar presenças:', error);
+      setToastMessage('Não foi possível salvar as presenças.');
+      setTimeout(() => setToastMessage(null), 3500);
+    }
   };
 
   return (
@@ -169,14 +190,12 @@ export const AttendancePage: React.FC = () => {
                   className="p-4 sm:px-6 hover:bg-gray-50/70 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left"
                 >
                   <div className="flex items-center gap-3">
-                    {/* Participant avatar with href="" as requested */}
-                    <a
-                      href=""
+                    <div
                       className="w-10 h-10 rounded-full bg-emerald-100/70 text-[#006A38] font-bold text-xs flex items-center justify-center flex-shrink-0"
                       title="Foto do aluno"
                     >
                       {p.name.charAt(0)}
-                    </a>
+                    </div>
                     <div>
                       <h4 className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">
                         {p.name}

@@ -7,25 +7,40 @@ import { TicketModal } from '../../components/cards/TicketModal.tsx';
 import { buildTicketData } from '../../utils/ticket';
 import { Registration, EventItem } from '../../types';
 import { useApiResource } from '../../hooks/useApiResource';
+import { useAuth } from '../../context/AuthContext';
+import { registrationsService } from '../../services/registrationsService';
+import { getLocalRegistrations } from '../../utils/localRegistrations';
 
 export const StudentRegistrationsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [openTicketId, setOpenTicketId] = useState<string | null>(null);
   const [cancelingId, setCancelingId] = useState<string | null>(null);
   const [cancelledIds, setCancelledIds] = useState<string[]>([]);
-  const { data: registrations } = useApiResource<Registration>('/registrations/me');
+  const { data: registrations } = useApiResource<Registration>(user ? `/registrations/user/${user.id}` : '');
   const { data: events } = useApiResource<EventItem>('/events');
+  const localRegistrations = user ? getLocalRegistrations(user.id) : [];
+  const allRegistrations = [...localRegistrations, ...registrations].filter(
+    (registration, index, current) => current.findIndex((item) => item.eventId === registration.eventId) === index,
+  );
 
-  const openRegistration = registrations.find((r) => r.id === openTicketId) ?? null;
+  const openRegistration = allRegistrations.find((r) => r.id === openTicketId) ?? null;
   const openEvent = openRegistration
     ? events.find((e) => e.id === openRegistration.eventId)
     : undefined;
   const openTicket = openRegistration ? buildTicketData(openRegistration, openEvent) : null;
 
-  const handleConfirmCancel = (id: string) => {
-    // TODO: chamar API de cancelamento de inscrição aqui
-    setCancelledIds((prev) => [...prev, id]);
-    setCancelingId(null);
+  const handleConfirmCancel = async (id: string) => {
+    try {
+      const response = await registrationsService.cancelRegistration(id);
+      if (!response.success) {
+        throw new Error(response.message || 'Não foi possível cancelar a inscrição.');
+      }
+      setCancelledIds((prev) => [...prev, id]);
+      setCancelingId(null);
+    } catch (error) {
+      console.error('Erro ao cancelar inscrição:', error);
+    }
   };
 
   return (
@@ -35,7 +50,7 @@ export const StudentRegistrationsPage: React.FC = () => {
     >
       <div className="space-y-4 max-w-6xl text-left">
         <div className="grid grid-cols-1 gap-4">
-          {registrations.map((reg) => {
+          {allRegistrations.map((reg) => {
             const event = events.find((e) => e.id === reg.eventId);
             const isCancelled = cancelledIds.includes(reg.id);
             const isConfirming = cancelingId === reg.id;
