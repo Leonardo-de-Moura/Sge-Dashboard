@@ -2,11 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FolderKanban, Plus, Edit, Users, CheckSquare, Award } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { mockEvents } from '../../data/mockData';
+import { EventItem } from '../../types';
 import { Button } from '../../components/common/Button';
+import { useApiResource } from '../../hooks/useApiResource';
 
 export const TeacherManagePage: React.FC = () => {
   const navigate = useNavigate();
+  const { data: events } = useApiResource<EventItem>('/events?mine=true');
 
   return (
     <DashboardLayout
@@ -30,7 +32,7 @@ export const TeacherManagePage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-4">
-          {mockEvents.map((ev) => (
+          {events.map((ev) => (
             <div
               key={ev.id}
               className="bg-white rounded-3xl border border-gray-200 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4"

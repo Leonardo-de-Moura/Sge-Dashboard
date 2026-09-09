@@ -3,18 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Download, ExternalLink, XCircle } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { TicketModal } from '../../components/cards/TicketModal.tsx';
-import { mockRegistrations, mockEvents } from '../../data/mockData';
 import { buildTicketData } from '../../utils/ticket';
+import { Registration, EventItem } from '../../types';
+import { useApiResource } from '../../hooks/useApiResource';
 
 export const StudentRegistrationsPage: React.FC = () => {
   const navigate = useNavigate();
   const [openTicketId, setOpenTicketId] = useState<string | null>(null);
   const [cancelingId, setCancelingId] = useState<string | null>(null);
   const [cancelledIds, setCancelledIds] = useState<string[]>([]);
+  const { data: registrations } = useApiResource<Registration>('/registrations/me');
+  const { data: events } = useApiResource<EventItem>('/events');
 
-  const openRegistration = mockRegistrations.find((r) => r.id === openTicketId) ?? null;
+  const openRegistration = registrations.find((r) => r.id === openTicketId) ?? null;
   const openEvent = openRegistration
-    ? mockEvents.find((e) => e.id === openRegistration.eventId)
+    ? events.find((e) => e.id === openRegistration.eventId)
     : undefined;
   const openTicket = openRegistration ? buildTicketData(openRegistration, openEvent) : null;
 
@@ -31,8 +34,8 @@ export const StudentRegistrationsPage: React.FC = () => {
     >
       <div className="space-y-4 max-w-6xl text-left">
         <div className="grid grid-cols-1 gap-4">
-          {mockRegistrations.map((reg) => {
-            const event = mockEvents.find((e) => e.id === reg.eventId);
+          {registrations.map((reg) => {
+            const event = events.find((e) => e.id === reg.eventId);
             const isCancelled = cancelledIds.includes(reg.id);
             const isConfirming = cancelingId === reg.id;
 

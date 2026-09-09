@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
 import { Search, SlidersHorizontal, MapPin, Calendar, Clock, CheckCircle2, ChevronRight, X, User } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { mockEvents } from '../../data/mockData';
 import { EventItem } from '../../types';
 import { Button } from '../../components/common/Button';
+import { useApiResource } from '../../hooks/useApiResource';
 
 export const StudentEventsPage: React.FC = () => {
-  const [selectedEvent, setSelectedEvent] = useState<EventItem>(mockEvents[2]); // Default Semana da Inovação
+  const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [registeredEvents, setRegisteredEvents] = useState<string[]>(['1']);
+  const [registeredEvents, setRegisteredEvents] = useState<string[]>([]);
   const [showConfirmationToast, setShowConfirmationToast] = useState(false);
   const [mobileDetailOpen, setMobileDetailOpen] = useState(false);
+  const { data: events } = useApiResource<EventItem>('/events');
+  const { data: registrations } = useApiResource<{ eventId: string }>('/registrations/me');
 
-  const filteredEvents = mockEvents.filter((ev) =>
+  React.useEffect(() => {
+    if (!selectedEvent && events.length > 0) setSelectedEvent(events[0]);
+  }, [events, selectedEvent]);
+
+  React.useEffect(() => {
+    setRegisteredEvents(registrations.map((registration) => registration.eventId));
+  }, [registrations]);
+
+  const filteredEvents = events.filter((ev) =>
     ev.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ev.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
     ev.category.toLowerCase().includes(searchTerm.toLowerCase())

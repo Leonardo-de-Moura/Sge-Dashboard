@@ -1,9 +1,12 @@
 import React from 'react';
 import { Award, Download, CheckCircle2, ShieldCheck, Calendar, Clock } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { mockCertificates } from '../../data/mockData';
+import { CertificateItem } from '../../types';
+import { useApiResource } from '../../hooks/useApiResource';
 
 export const StudentCertificatesPage: React.FC = () => {
+  const { data: certificates } = useApiResource<CertificateItem>('/certificates/me');
+
   return (
     <DashboardLayout
       title="Meus Certificados"
@@ -21,7 +24,7 @@ export const StudentCertificatesPage: React.FC = () => {
 
         {/* Certificates List */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {mockCertificates.map((cert) => (
+          {certificates.map((cert) => (
             <div
               key={cert.id}
               className="bg-white rounded-3xl border border-gray-200 p-5 sm:p-6 shadow-xs hover:border-gray-300 transition-all flex flex-col justify-between"
