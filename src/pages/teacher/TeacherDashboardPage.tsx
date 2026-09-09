@@ -2,11 +2,13 @@ import type * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, CheckSquare, Award, Calendar, Users, ArrowRight, TrendingUp } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
-import { mockEvents } from '../../data/mockData';
 import { EventCard } from '../../components/cards/EventCard';
+import { EventItem } from '../../types';
+import { useApiResource } from '../../hooks/useApiResource';
 
 export const TeacherDashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { data: events } = useApiResource<EventItem>('/events?mine=true');
 
   return (
     <DashboardLayout
@@ -122,7 +124,7 @@ export const TeacherDashboardPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-3">
-            {mockEvents.map((event) => (
+            {events.map((event) => (
               <div
                 key={event.id}
                 className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 hover:border-gray-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"

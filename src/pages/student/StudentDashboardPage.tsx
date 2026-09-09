@@ -1,28 +1,46 @@
 import type * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, ArrowRight, Award, Ticket, CheckCircle, Sparkles } from 'lucide-react';
 import { DashboardLayout } from '../../components/layout/DashboardLayout';
 import { EventCard } from '../../components/cards/EventCard';
-import { mockEvents, mockRegistrations, mockCertificates } from '../../data/mockData';
 import { EventItem } from '../../types';
 import { CalendarDays } from 'lucide-react';
+import { useApiResource } from '../../hooks/useApiResource';
+import { Registration, CertificateItem } from '../../types';
 
 export const StudentDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
-  const [userRegistrations, setUserRegistrations] = useState<string[]>(['1']); // event 1 enrolled
+  const [userRegistrations, setUserRegistrations] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { data: events, loading, error } = useApiResource<EventItem>('/events');
+  const { data: registrations } = useApiResource<Registration>('/registrations/me');
+  const { data: certificates } = useApiResource<CertificateItem>('/certificates/me');
+
+  useEffect(() => {
+    setUserRegistrations(registrations.map((registration) => registration.eventId));
+  }, [registrations]);
 
   const categories = ['Todos', 'Palestra', 'Minicurso', 'Congresso', 'Oficina'];
 
-  const filteredEvents = mockEvents.filter((event) => {
+  const filteredEvents = events.filter((event) => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           event.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'Todos' || event.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  if (loading || error) {
+    return (
+      <DashboardLayout>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 text-sm text-gray-600">
+          {loading ? 'Carregando eventos...' : error}
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   const handleRegister = (event: EventItem) => {
     if (userRegistrations.includes(event.id)) return;
@@ -158,12 +176,12 @@ export const StudentDashboardPage: React.FC = () => {
                 <h4 className="text-sm font-bold text-gray-900">Minhas inscrições</h4>
               </div>
               <span className="text-[11px] font-semibold text-gray-500">
-                {mockRegistrations.length} ativas
+                {registrations.length} ativas
               </span>
             </div>
 
             <div className="space-y-3">
-              {mockRegistrations.map((reg) => (
+              {registrations.map((reg) => (
                 <div
                   key={reg.id}
                   className="p-3.5 rounded-2xl bg-gray-50 hover:bg-emerald-50/40 border border-gray-100 transition-colors"
@@ -202,16 +220,16 @@ export const StudentDashboardPage: React.FC = () => {
                 <h4 className="text-sm font-bold text-gray-900">Certificados</h4>
               </div>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#C9EEB4] text-[#004D26]">
-                {mockCertificates.length} disponíveis
+                {certificates.length} disponíveis
               </span>
             </div>
 
             <p className="text-xs text-gray-600 mb-4 leading-relaxed">
-              Você tem <strong>{mockCertificates.length} certificados</strong> prontos para download com autenticação digital.
+              Você tem <strong>{certificates.length} certificados</strong> prontos para download com autenticação digital.
             </p>
 
             <div className="space-y-2.5">
-              {mockCertificates.slice(0, 2).map((cert) => (
+              {certificates.slice(0, 2).map((cert) => (
                 <div key={cert.id} className="p-3 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-between">
                   <div className="min-w-0 pr-2">
                     <p className="text-xs font-bold text-gray-800 truncate">{cert.eventTitle}</p>

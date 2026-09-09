@@ -1,5 +1,5 @@
 import type * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   Check,
@@ -12,19 +12,29 @@ import {
   UserX,
 } from "lucide-react";
 import { DashboardLayout } from "../../components/layout/DashboardLayout";
-import { mockParticipants, mockEvents } from "../../data/mockData";
-import { ParticipantAttendance } from "../../types";
+import { EventItem, ParticipantAttendance } from "../../types";
 import { Button } from "../../components/common/Button";
+import { useApiResource } from "../../hooks/useApiResource";
 
 export const AttendancePage: React.FC = () => {
-  const [selectedEventId, setSelectedEventId] = useState("3"); // Expotec 2026
-  const [participants, setParticipants] =
-    useState<ParticipantAttendance[]>(mockParticipants);
+  const [selectedEventId, setSelectedEventId] = useState("");
+  const [participants, setParticipants] = useState<ParticipantAttendance[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const selectedEvent =
-    mockEvents.find((e) => e.id === selectedEventId) || mockEvents[2];
+  const { data: events } = useApiResource<EventItem>('/events?mine=true');
+  const { data: apiParticipants } = useApiResource<ParticipantAttendance>(
+    selectedEventId ? `/events/${selectedEventId}/participants` : '/events/participants',
+  );
+  const selectedEvent = events.find((e) => e.id === selectedEventId) ?? events[0];
+
+  useEffect(() => {
+    if (!selectedEventId && events[0]) setSelectedEventId(events[0].id);
+  }, [events, selectedEventId]);
+
+  useEffect(() => {
+    setParticipants(apiParticipants);
+  }, [apiParticipants]);
 
   const filteredParticipants = participants.filter(
     (p) =>
@@ -47,7 +57,7 @@ export const AttendancePage: React.FC = () => {
 
   const handleSaveAttendance = () => {
     setToastMessage(
-      `Presenças registradas para o evento "${selectedEvent.title}"!`,
+      `Presenças registradas para o evento "${selectedEvent?.title ?? ''}"!`,
     );
     setTimeout(() => setToastMessage(null), 3500);
   };
@@ -73,14 +83,14 @@ export const AttendancePage: React.FC = () => {
             </span>
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-bold text-gray-900">
-                {selectedEvent.title}
+                {selectedEvent?.title ?? "Carregando evento..."}
               </h3>
               <select
                 value={selectedEventId}
                 onChange={(e) => setSelectedEventId(e.target.value)}
                 className="text-xs font-semibold text-[#006A38] bg-emerald-50 border border-[#C9EEB4] rounded-lg px-2.5 py-1 focus:outline-none cursor-pointer"
               >
-                {mockEvents.map((ev) => (
+                {events.map((ev) => (
                   <option key={ev.id} value={ev.id}>
                     Trocar: {ev.title}
                   </option>
@@ -88,7 +98,7 @@ export const AttendancePage: React.FC = () => {
               </select>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              {selectedEvent.dayMonth} • {selectedEvent.location}
+              {selectedEvent?.dayMonth ?? "-"} • {selectedEvent?.location ?? "-"}
             </p>
           </div>
 
